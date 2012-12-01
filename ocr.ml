@@ -102,6 +102,8 @@ let filter src mat pds =
 	sum := r2 * mat.(2).((k mod 3)) + !sum
       done;
       sum := !sum / pds;
+      if !sum > 255 then sum := 255
+      else if !sum < 0 then sum := 0;
       Sdlvideo.put_pixel_color src i j (!sum,!sum,!sum);
       sum := 0;
     done 
@@ -115,6 +117,15 @@ let convolution src =
   mat.(1).(2) <- 2;
   mat.(2).(1) <- 2;
   filter src mat 17
+
+let contraste src = 
+  let mat = Array.make_matrix 3 3 0 in
+  mat.(0).(1) <- (-1);
+  mat.(1).(0) <- (-1);
+  mat.(1).(1) <- 5;
+  mat.(1).(2) <- (-1);
+  mat.(2).(1) <- (-1);
+  filter src mat 2
 
 let pi = 3.141592654;;
 
@@ -274,6 +285,12 @@ let main () =
       wait_key ();
     let dst = Sdlvideo.create_RGB_surface_format img [] w h in
     	image2grey img dst;
+	show dst display;
+	wait_key ();
+	convolution dst;
+	show dst display;
+	wait_key ();
+	contraste dst;
 	show dst display;
 	wait_key ();
 	grey2black_white dst 0.75;
