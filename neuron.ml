@@ -26,24 +26,20 @@ end
 
 let get_dims matrix = (Array.length matrix, Array.length matrix.(0))
 
-let truncate matrix = 
-  let (x,y) = (Array.length matrix ,Array.length matrix.(0))
-  and sum = ref 0
+let detect_top matrix = 
+  let (x,y) = get_dims matrix
+  and stop = ref false
   and i = ref 0 
   and j = ref 0 in
-  let rec trunc mat bi_x bs_x bi_y bs_y =
-    i := bi_x;
-    sum := 0;
-    while !i < bs_x && !sum = 0 do
-      j := bi_y;
-      while !j < bs_y do
-	sum := !sum + mat.(!i).(!j);
-	j:= !j+1
-      done;
-      i := !i + 1
+  while !i < x && not !stop do
+    j := 0;
+    while !j < y && not !stop do
+      stop := (matrix.(!i).(!j) <> 0);
+      j:= !j+1
     done;
-    (!i-1)
-  in trunc matrix 0 y 0 x
+    i := !i + 1
+  done;
+  (!i-1)
 
 let detect_left matrix =
   let (x,y) = get_dims matrix in
@@ -75,7 +71,22 @@ let detect_down matrix =
   done;
   !i + 1;;
 
+let detect_right matrix =
+  let (x,y) = get_dims matrix in
+  let stop = ref false
+  and i = ref 0
+  and j = ref (y-1) in
+  while !j > 0  && not !stop do
+    i := 0;
+    while !i < x && not !stop do
+      stop := (matrix.(!i).(!j) <> 0);
+      i := !i+1
+    done;
+    j := !j - 1;
+  done;
+  (!j + 1)
+
 let test =
   let mat = Array.make_matrix 2 3 0 in
   mat.(1).(2) <- 1;
-  detect_down mat
+  detect_right mat
