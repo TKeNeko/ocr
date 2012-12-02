@@ -24,6 +24,8 @@ object (self)
     c >= use * 7 / 10    
 end
 
+let get_dims matrix = (Array.length matrix, Array.length matrix.(0))
+
 let truncate matrix = 
   let (x,y) = (Array.length matrix ,Array.length matrix.(0))
   and sum = ref 0
@@ -43,8 +45,37 @@ let truncate matrix =
     (!i-1)
   in trunc matrix 0 y 0 x
 
+let detect_left matrix =
+  let (x,y) = get_dims matrix in
+  let i = ref 0 in
+  let j = ref 0 in
+  let stop = ref false in
+  while !j < y && not !stop do
+    i := 0;
+    while !i < x && not !stop do
+      stop := (matrix.(!i).(!j) <> 0);
+      i := !i + 1;
+    done;
+    j := !j + 1
+  done;
+  !j - 1;;
+
+let detect_down matrix =
+  let (x,y) = get_dims matrix in
+  let i = ref (x - 1) in
+  let j = ref 0 in
+  let stop = ref false in
+  while !i >= 0 && not !stop do
+    j := 0;
+    while !j < y && not !stop do
+      stop := (matrix.(!i).(!j) <> 0);
+      j := !j + 1;
+    done;
+    i := !i - 1;
+  done;
+  !i + 1;;
 
 let test =
   let mat = Array.make_matrix 2 3 0 in
   mat.(1).(2) <- 1;
-  truncate mat
+  detect_down mat
