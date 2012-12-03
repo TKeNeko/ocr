@@ -86,7 +86,22 @@ let detect_right matrix =
   done;
   (!j + 1)
 
+let extend_matrix matrix dest_x dest_y =
+  let (x,y) = get_dims matrix in
+    if (dest_x <= x) || (dest_y <= y) then
+      failwith "Dimensions plus petites que la matrice d'origine"
+    else
+      let dest_mat = Array.make_matrix dest_x dest_y 0 in
+      for i = 0 to x - 1 do
+	for j = 0 to y - 1 do
+	  begin
+	    if (matrix.(i).(j) <> 0) then
+	       
+	  end
+	done
+      done
+
 let test =
   let mat = Array.make_matrix 2 3 0 in
   mat.(1).(2) <- 1;
-  detect_right mat
+  extend_matrix mat 3 4
