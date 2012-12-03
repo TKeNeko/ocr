@@ -86,7 +86,29 @@ let detect_right matrix =
   done;
   (!j + 1)
 
+let truncate matrix = 
+  let border_top = detect_top matrix
+  and border_right = detect_right matrix
+  and border_down = detect_down matrix
+  and border_left = detect_left matrix in
+  let col = (border_right - border_left) + 1
+  and lines = (border_down - border_top) + 1 in
+  let trunc_mat = Array.make_matrix lines col 0
+  and x = ref 0
+  and y = ref 0 in
+  for i = border_top to border_down do
+    y := 0;
+    for j = border_left to border_right do
+      trunc_mat.(!x).(!y) <- matrix.(i).(j);
+      y := !y + 1
+    done;
+    x := !x +1
+  done;
+  trunc_mat
+
 let test =
-  let mat = Array.make_matrix 2 3 0 in
+  let mat = Array.make_matrix 12 13 0 in
   mat.(1).(2) <- 1;
-  detect_right mat
+  mat.(1).(1) <- 1;
+  mat.(0).(1) <- 1;
+  truncate mat
