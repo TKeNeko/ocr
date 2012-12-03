@@ -86,22 +86,31 @@ let detect_right matrix =
   done;
   (!j + 1)
 
+let float_to_int f =
+  if (f -. float_of_int(int_of_float f) >= 0.5) then
+    int_of_float f + 1
+  else
+    int_of_float f
 
 let extend_matrix matrix dest_x dest_y =
   let (x,y) = get_dims matrix in
-    if (dest_x <= x) || (dest_y <= y) then
-      failwith "Dimensions plus petites que la matrice d'origine"
-    else
-      let dest_mat = Array.make_matrix dest_x dest_y 0 in
-      for i = 0 to x - 1 do
-	for j = 0 to y - 1 do
-	  begin
-	    if (matrix.(i).(j) <> 0) then
-	       
-	  end
-	done
-      done
-
+  let dest_mat = Array.make_matrix dest_x dest_y 0 in
+  let mult_x = float_to_int((float dest_x) /. (float x)) in
+  let mult_y = float_to_int((float dest_y) /. (float y)) in
+  for i = 0 to x - 1 do
+    for j = 0 to y - 1 do
+      begin
+	if (matrix.(i).(j) <> 0) then
+	  for n = 0 to mult_x - 1 do
+	    for m = 0 to mult_y - 1 do
+	      dest_mat.(mult_x * i + n).(mult_y * j + m) <- 1;
+	    done
+	  done
+      end
+    done
+  done;
+  dest_mat
+    
 let truncate matrix = 
   let border_top = detect_top matrix
   and border_right = detect_right matrix
@@ -125,4 +134,11 @@ let truncate matrix =
 let test =
   let mat = Array.make_matrix 12 13 0 in
   mat.(1).(2) <- 1;
-  extend_matrix mat 3 4
+  extend_matrix mat 3 4;;
+
+
+let mmat =
+  let mat = Array.make_matrix 2 2 0 in
+  mat.(0).(0) <- 1;
+  mat.(1).(1) <- 1;
+  extend_matrix mat 4 4;;
