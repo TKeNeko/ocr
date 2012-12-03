@@ -92,24 +92,39 @@ let float_to_int f =
   else
     int_of_float f
 
-let extend_matrix matrix dest_x dest_y =
+let extend_mat_w matrix dest_y =
   let (x,y) = get_dims matrix in
-  let dest_mat = Array.make_matrix dest_x dest_y 0 in
-  let mult_x = float_to_int((float dest_x) /. (float x)) in
+  let dest_mat = Array.make_matrix x dest_y 0 in
   let mult_y = float_to_int((float dest_y) /. (float y)) in
   for i = 0 to x - 1 do
     for j = 0 to y - 1 do
-      begin
-	if (matrix.(i).(j) <> 0) then
-	  for n = 0 to mult_x - 1 do
-	    for m = 0 to mult_y - 1 do
-	      dest_mat.(mult_x * i + n).(mult_y * j + m) <- 1;
-	    done
-	  done
-      end
+      if (matrix.(i).(j) <> 0) then
+	for m = 0 to mult_y - 1 do
+	  let pos_y = mult_y * j + m in
+	  if (pos_y < dest_y) then
+	    dest_mat.(i).(pos_y) <- 1;
+	done
     done
   done;
   dest_mat
+
+let extend_mat_h matrix dest_x =
+  let (x,y) = get_dims matrix in
+  let dest_mat = Array.make_matrix dest_x y 0 in
+  let mult_x = float_to_int((float dest_x) /. (float y)) in
+  for i = 0 to x - 1 do
+    for j = 0 to y - 1 do
+      if (matrix.(i).(j) <> 0) then
+	for n = 0 to mult_x - 1 do
+	  let pos_x = mult_x * i + n in
+	  if (pos_x < dest_x) then
+	    dest_mat.(pos_x).(j) <- 1;
+	done
+    done
+  done;
+  dest_mat
+
+
     
 let truncate matrix = 
   let border_top = detect_top matrix
@@ -141,4 +156,4 @@ let mmat =
   let mat = Array.make_matrix 2 2 0 in
   mat.(0).(0) <- 1;
   mat.(1).(1) <- 1;
-  extend_matrix mat 4 4;;
+  extend_mat_w mat 5;
