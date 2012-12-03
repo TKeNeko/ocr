@@ -124,8 +124,27 @@ let extend_mat_h matrix dest_x =
   done;
   dest_mat
 
+let reduce_matrix_y matrix dest_y mult_y = 
+  let (x,y) = get_dims matrix in
+  let dest_mat = Array.make_matrix x dest_y 0
+  and col = ref 0
+  and max_col = ref 0
+  and sum = ref 0 in
+  for i = 0 to x - 1 do
+    col := 0;
+    max_col := 0;
+    for j = 0 to y - 1 do
+      begin
+	sum := 0;
+	max_col := !max_col + mult_y; 
+	while(!col < y && !col < !max_col) do
+	  sum := !sum + matrix.(i).(!col);
+	  col:= !col + 1
+	done;
+	if !sum >= (mult_y / 2) then
+	  dest_mat.(i).(j) <- 1
+      end
 
-    
 let truncate matrix = 
   let border_top = detect_top matrix
   and border_right = detect_right matrix
@@ -153,7 +172,11 @@ let test =
 
 
 let mmat =
-  let mat = Array.make_matrix 2 2 0 in
+  let mat = Array.make_matrix 4 4 0 in
   mat.(0).(0) <- 1;
   mat.(1).(1) <- 1;
-  extend_mat_w mat 5;
+  mat.(1).(2) <- 1;
+  mat.(2).(1) <- 1;
+  mat.(3).(2) <- 1;
+  mat.(3).(3) <- 1;
+  reduce_matrix_y mat 2 2;;
