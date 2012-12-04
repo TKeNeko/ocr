@@ -4,8 +4,14 @@ object (self)
   val letter : char = character
   val size_x : int = Array.length matrix
   val size_y : int = Array.length matrix.(0)
-  
+  val mutable weight : int = 0  
+
   method get_letter = letter
+
+  method get_weight = weight
+
+  method set_weight w = weight <- w
+
   method compare matrix =
     let c = ref 0 in 
     for x = 0 to (size_x - 1) do
