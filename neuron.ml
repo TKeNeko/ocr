@@ -111,7 +111,7 @@ let extend_mat_w matrix dest_y =
 let extend_mat_h matrix dest_x =
   let (x,y) = get_dims matrix in
   let dest_mat = Array.make_matrix dest_x y 0 in
-  let mult_x = float_to_int((float dest_x) /. (float y)) in
+  let mult_x = float_to_int((float dest_x) /. (float x)) in
   for i = 0 to x - 1 do
     for j = 0 to y - 1 do
       if (matrix.(i).(j) <> 0) then
@@ -124,8 +124,9 @@ let extend_mat_h matrix dest_x =
   done;
   dest_mat
 
-let reduce_matrix_y matrix dest_y mult_y = 
+let reduce_matrix_w matrix dest_y = 
   let (x,y) = get_dims matrix in
+  let mult_y = float_to_int((float y) /. (float dest_y)) in
   let dest_mat = Array.make_matrix x dest_y 0
   and col = ref 0
   and max_col = ref 0
@@ -133,7 +134,7 @@ let reduce_matrix_y matrix dest_y mult_y =
   for i = 0 to x - 1 do
     col := 0;
     max_col := 0;
-    for j = 0 to y - 1 do
+    for j = 0 to dest_y - 1 do
       begin
 	sum := 0;
 	max_col := !max_col + mult_y; 
@@ -141,9 +142,37 @@ let reduce_matrix_y matrix dest_y mult_y =
 	  sum := !sum + matrix.(i).(!col);
 	  col:= !col + 1
 	done;
-	if !sum >= (mult_y / 2) then
+	if (float !sum) >= ((float mult_y) /. 2.) then
 	  dest_mat.(i).(j) <- 1
       end
+    done
+  done;
+  dest_mat
+
+let reduce_matrix_h matrix dest_x =
+  let (x,y) = get_dims matrix in
+  let mult_x = float_to_int((float x) /. (float dest_x)) in
+  let dest_mat = Array.make_matrix dest_x y 0
+  and line = ref 0
+  and max_line = ref 0
+  and sum = ref 0 in
+  for j = 0 to y - 1 do
+    line := 0;
+    max_line := 0;
+    for i = 0 to dest_x - 1 do
+      begin
+	sum := 0;
+	max_line := !max_line + mult_x; 
+	while(!line < x && !line < !max_line) do
+	    sum := !sum + matrix.(!line).(j);
+	    line := !line + 1
+	done;
+	if (float !sum) >= ((float mult_x) /. 2.) then
+	    dest_mat.(i).(j) <- 1
+      end
+    done
+  done;
+  dest_mat
 
 let truncate matrix = 
   let border_top = detect_top matrix
@@ -179,4 +208,4 @@ let mmat =
   mat.(2).(1) <- 1;
   mat.(3).(2) <- 1;
   mat.(3).(3) <- 1;
-  reduce_matrix_y mat 2 2;;
+  reduce_matrix_h mat 2;;
