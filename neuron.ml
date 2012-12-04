@@ -111,7 +111,7 @@ let extend_mat_w matrix dest_y =
 let extend_mat_h matrix dest_x =
   let (x,y) = get_dims matrix in
   let dest_mat = Array.make_matrix dest_x y 0 in
-  let mult_x = float_to_int((float dest_x) /. (float y)) in
+  let mult_x = float_to_int((float dest_x) /. (float x)) in
   for i = 0 to x - 1 do
     for j = 0 to y - 1 do
       if (matrix.(i).(j) <> 0) then
