@@ -24,6 +24,10 @@ object (self)
     c >= use * 7 / 10    
 end
 
+let size_mat_x = 8
+let size_mat_y = 8
+
+
 let get_dims matrix = (Array.length matrix, Array.length matrix.(0))
 
 let detect_top matrix = 
@@ -124,7 +128,7 @@ let extend_mat_h matrix dest_x =
   done;
   dest_mat
 
-let reduce_matrix_w matrix dest_y = 
+let reduce_mat_w matrix dest_y = 
   let (x,y) = get_dims matrix in
   let mult_y = float_to_int((float y) /. (float dest_y)) in
   let dest_mat = Array.make_matrix x dest_y 0
@@ -149,7 +153,7 @@ let reduce_matrix_w matrix dest_y =
   done;
   dest_mat
 
-let reduce_matrix_h matrix dest_x =
+let reduce_mat_h matrix dest_x =
   let (x,y) = get_dims matrix in
   let mult_x = float_to_int((float x) /. (float dest_x)) in
   let dest_mat = Array.make_matrix dest_x y 0
@@ -194,6 +198,23 @@ let truncate matrix =
   done;
   trunc_mat
 
+let resize matrix =
+  let (x,y) = get_dims matrix
+  and dest_mat = ref matrix in
+  begin
+    if (x > size_mat_x) then
+      dest_mat := reduce_mat_h matrix size_mat_x
+    else if (x < size_mat_x) then
+      dest_mat := extend_mat_h matrix size_mat_x
+  end;
+  begin
+    if (y > size_mat_y) then
+      dest_mat := reduce_mat_w !dest_mat size_mat_y
+    else if (y < size_mat_y) then
+      dest_mat := extend_mat_w !dest_mat size_mat_y
+  end;
+  !dest_mat
+
 let test =
   let mat = Array.make_matrix 12 13 0 in
   mat.(1).(2) <- 1;
@@ -208,4 +229,4 @@ let mmat =
   mat.(2).(1) <- 1;
   mat.(3).(2) <- 1;
   mat.(3).(3) <- 1;
-  reduce_matrix_h mat 2;;
+  resize mat;;
