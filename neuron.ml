@@ -1,17 +1,44 @@
-class neuron matrix character =
+class neuron matrix character x y =
 object (self)
   val mat : int array array = matrix
-  val letter : char = character
+  val mutable letter : char = character
   val size_x : int = Array.length matrix
   val size_y : int = Array.length matrix.(0)
-  val mutable weight : int = 0  
+  val mutable matrix_weight : float array array = Array.make_matrix x y 0.
 
   method get_letter = letter
 
-  method get_weight = weight
+  method learning tab_mat character = 
+    let number = Array.length tab_mat
+    and mat_temp = ref (Array.make_matrix size_x size_y 0) in
+    for i = 0 to (number - 1) do
+      mat_temp := tab_mat.(i);
+      for x = 0 to (size_x - 1) do
+	for y = 0 to (size_y - 1) do
+	    matrix_weight.(x).(y) <- matrix_weight.(x).(y) +. (float !mat_temp.(x).(y))
+	done;
+      done;
+    done;
+    for x = 0 to (size_x - 1) do
+      for y = 0 to (size_y - 1) do
+	matrix_weight.(x).(y) <- matrix_weight.(x).(y) /. (float number)
+      done;
+    done;
+    letter <- character;
 
-  method set_weight w = weight <- w
-
+    method matching matrix =
+      let sum = ref 0. in
+      for x = 0 to (size_x - 1) do
+	for y = 0  to (size_y - 1) do
+	  if matrix.(x).(y) = 1 then
+	    sum := !sum +. matrix_weight.(x).(y)
+	  else
+	    sum := !sum -. matrix_weight.(x).(y)
+	done
+      done;
+      !sum
+      
+    
   method compare matrix =
     let c = ref 0 in 
     for x = 0 to (size_x - 1) do
@@ -24,7 +51,7 @@ object (self)
     done;
     !c
 
-  method matching matrix =
+  method matching_t matrix =
     let c = self#compare matrix in
     let use = size_x * size_y / 2 in
     c >= use * 7 / 10    
