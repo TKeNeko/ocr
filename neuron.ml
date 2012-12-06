@@ -263,3 +263,34 @@ let mmat =
   mat.(3).(2) <- 1;
   mat.(3).(3) <- 1;
   resize mat;;
+
+let neur_test = 
+  let matr = Array.make_matrix 8 8 0 in
+  let neurone = new neuron matr 'l' 8 8 in
+  let tab = Array.make 1 matr in
+  let matrix = Array.make_matrix 8 8 0 in
+  let test_mat = Array.make_matrix 4 4 0 in
+  matrix.(0).(0) <- 1;
+  matrix.(0).(1) <- 1;
+  matrix.(0).(2) <- 1;
+  matrix.(1).(0) <- 1;
+  matrix.(1).(1) <- 1;
+  matrix.(1).(2) <- 1;
+  for i = 0 to 7 do
+    matrix.(i).(3) <- 1;
+    matrix.(i).(4) <- 1
+  done;
+  matrix.(6).(5) <- 1;
+  matrix.(6).(6) <- 1;
+  matrix.(6).(7) <- 1;
+  matrix.(7).(5) <- 1;
+  matrix.(7).(6) <- 1;
+  matrix.(7).(7) <- 1;
+  tab.(0) <- matrix;
+  neurone#learning tab 'l';
+  test_mat.(0).(0) <- 1;
+  for i = 0 to 3 do
+    test_mat.(i).(1) <- 1;
+  done;
+  test_mat.(3).(2) <- 1;
+  neurone#matching (resize (truncate test_mat))
