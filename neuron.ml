@@ -1,11 +1,59 @@
- class neuron matrix character =
+let size_mat_x = 8
+let size_mat_y = 8
+
+class network nbr =
+object
+  val tab =
+    let tab_n = Array.make_matrix size_mat_x size_mat_y 0 in
+    Array.make nbr (new neuron tab_n 'a' 8 8)
+      
+  method learning =
+    for i = 0 to nbr do
+      tab.(i)#learning tab tab.(i)#get_letter
+    done
+end
+
+class neuron matrix character x y =
 object (self)
   val mat : int array array = matrix
-  val letter : char = character
+  val mutable letter : char = character
   val size_x : int = Array.length matrix
   val size_y : int = Array.length matrix.(0)
-  
+  val mutable matrix_weight : float array array = Array.make_matrix x y 0.
+
   method get_letter = letter
+
+  method learning tab_mat character = 
+    let number = Array.length tab_mat
+    and mat_temp = ref (Array.make_matrix size_x size_y 0) in
+    for i = 0 to (number - 1) do
+      mat_temp := tab_mat.(i);
+      for x = 0 to (size_x - 1) do
+	for y = 0 to (size_y - 1) do
+	    matrix_weight.(x).(y) <- matrix_weight.(x).(y) +. (float !mat_temp.(x).(y))
+	done;
+      done;
+    done;
+    for x = 0 to (size_x - 1) do
+      for y = 0 to (size_y - 1) do
+	matrix_weight.(x).(y) <- matrix_weight.(x).(y) /. (float number)
+      done;
+    done;
+    letter <- character;
+
+    method matching matrix =
+      let sum = ref 0. in
+      for x = 0 to (size_x - 1) do
+	for y = 0  to (size_y - 1) do
+	  if matrix.(x).(y) = 1 then
+	    sum := !sum +. matrix_weight.(x).(y)
+	  else
+	    sum := !sum -. matrix_weight.(x).(y)
+	done
+      done;
+      !sum
+      
+    
   method compare matrix =
     let c = ref 0 in 
     for x = 0 to (size_x - 1) do
@@ -18,15 +66,11 @@ object (self)
     done;
     !c
 
-  method matching matrix =
+  method matching_t matrix =
     let c = self#compare matrix in
     let use = size_x * size_y / 2 in
     c >= use * 7 / 10    
 end
-
-let size_mat_x = 8
-let size_mat_y = 8
-
 
 let get_dims matrix = (Array.length matrix, Array.length matrix.(0))
 
@@ -214,3 +258,53 @@ let resize matrix =
       dest_mat := extend_mat_w !dest_mat size_mat_y
   end;
   !dest_mat
+<<<<<<< HEAD
+=======
+
+let test =
+  let mat = Array.make_matrix 12 13 0 in
+  mat.(1).(2) <- 1;
+  extend_matrix mat 3 4;;
+
+
+let mmat =
+  let mat = Array.make_matrix 4 4 0 in
+  mat.(0).(0) <- 1;
+  mat.(1).(1) <- 1;
+  mat.(1).(2) <- 1;
+  mat.(2).(1) <- 1;
+  mat.(3).(2) <- 1;
+  mat.(3).(3) <- 1;
+  resize mat;;
+
+let neur_test = 
+  let matr = Array.make_matrix 8 8 0 in
+  let neurone = new neuron matr 'l' 8 8 in
+  let tab = Array.make 1 matr in
+  let matrix = Array.make_matrix 8 8 0 in
+  let test_mat = Array.make_matrix 4 4 0 in
+  matrix.(0).(0) <- 1;
+  matrix.(0).(1) <- 1;
+  matrix.(0).(2) <- 1;
+  matrix.(1).(0) <- 1;
+  matrix.(1).(1) <- 1;
+  matrix.(1).(2) <- 1;
+  for i = 0 to 7 do
+    matrix.(i).(3) <- 1;
+    matrix.(i).(4) <- 1
+  done;
+  matrix.(6).(5) <- 1;
+  matrix.(6).(6) <- 1;
+  matrix.(6).(7) <- 1;
+  matrix.(7).(5) <- 1;
+  matrix.(7).(6) <- 1;
+  matrix.(7).(7) <- 1;
+  tab.(0) <- matrix;
+  neurone#learning tab 'l';
+  test_mat.(0).(0) <- 1;
+  for i = 0 to 3 do
+    test_mat.(i).(1) <- 1;
+  done;
+  test_mat.(3).(2) <- 1;
+  neurone#matching (resize (truncate test_mat))
+>>>>>>> af4b627a99508d280c452eca6b759c82278574e2
