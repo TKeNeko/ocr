@@ -1,4 +1,4 @@
-class neuron matrix character =
+ class neuron matrix character =
 object (self)
   val mat : int array array = matrix
   val letter : char = character
@@ -214,19 +214,3 @@ let resize matrix =
       dest_mat := extend_mat_w !dest_mat size_mat_y
   end;
   !dest_mat
-
-let test =
-  let mat = Array.make_matrix 12 13 0 in
-  mat.(1).(2) <- 1;
-  extend_matrix mat 3 4;;
-
-
-let mmat =
-  let mat = Array.make_matrix 4 4 0 in
-  mat.(0).(0) <- 1;
-  mat.(1).(1) <- 1;
-  mat.(1).(2) <- 1;
-  mat.(2).(1) <- 1;
-  mat.(3).(2) <- 1;
-  mat.(3).(3) <- 1;
-  resize mat;;
