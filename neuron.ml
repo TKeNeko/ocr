@@ -260,6 +260,27 @@ object
 
 end
 
+
+
+let is_empty mat = 
+  let (x,y) = get_dims mat 
+  and empty = ref true 
+  and i = ref 0
+  and j = ref 0 in
+  while !i < (x-1) && !empty do
+    while !j < (y-1) && !empty do
+      if mat.(!i).(!j) = 1 then
+	empty := false
+    done
+  done;
+  !empty
+
+
+let mat_to_string mat =
+  
+
+
+
 let test =
   let mat = Array.make_matrix 12 13 0 in
   mat.(1).(2) <- 1;
