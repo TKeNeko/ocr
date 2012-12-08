@@ -277,6 +277,7 @@ object (self)
     else
       let char_to_string = function
 	|'a' -> "a"
+	|_ -> ""
       in
       char_to_string (self#recongnize mat)
 end
