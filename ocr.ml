@@ -1,28 +1,28 @@
 (* Dimensions d'une image *)
 let get_dims img =
   ((Sdlvideo.surface_info img).Sdlvideo.w, (Sdlvideo.surface_info img).Sdlvideo.h)
- 
+    
 (* init de SDL *)
 let sdl_init () =
   begin
     Sdl.init [`EVERYTHING];
     Sdlevent.enable_events Sdlevent.all_events_mask;
   end
- 
+    
 (* attendre une touche ... *)
 let rec wait_key () =
   let e = Sdlevent.wait_event () in
-    match e with
+  match e with
     Sdlevent.KEYDOWN _ -> ()
-      | _ -> wait_key ()
+  | _ -> wait_key ()
 (*
   show img dst
   affiche la surface img sur la surface de destination dst (normalement l'écran)
 *)
 let show img dst =
   let d = Sdlvideo.display_format img in
-    Sdlvideo.blit_surface d dst ();
-    Sdlvideo.flip dst
+  Sdlvideo.blit_surface d dst ();
+  Sdlvideo.flip dst
 
 (* level *)
 let level (r,g,b) = (0.3 *. (float  r) +. 0.59 *. (float g) +. 0.11 *. (float b)) /. 255.
@@ -33,17 +33,17 @@ let color2grey (r,g,b) =
   in (grey,grey,grey)
 
 (* grey2black_white 
-    step comprit 0 et 1 *)
+   step comprit 0 et 1 *)
 let grey2black_white src step = 
-    let (x,y) = get_dims src 
-    in let min = int_of_float(255. *. step)
-    in for i = 0 to (x-1) do
+  let (x,y) = get_dims src 
+  in let min = int_of_float(255. *. step)
+     in for i = 0 to (x-1) do
          for j = 0 to (y-1) do
 	   let (r,g,b) = Sdlvideo.get_pixel_color src i j in
-	     if r >= min then
-	       Sdlvideo.put_pixel_color src i j (255,255,255)
-	     else
-	       Sdlvideo.put_pixel_color src i j (0,0,0)
+	   if r >= min then
+	     Sdlvideo.put_pixel_color src i j (255,255,255)
+	   else
+	     Sdlvideo.put_pixel_color src i j (0,0,0)
 	 done
        done		 
 
@@ -60,13 +60,13 @@ let image2grey src dst =
 let rec tri tab i =
   if i > 0 then
     tri (tab) (i-1); let k = ref (i-1) in 
-		       let x = tab.(i) in
-		       while !k > 0 && tab.(!k) > x do
-			 tab.(!k+1) <- tab.(!k);
-			 k := !k - 1
-		       done; 
-		       tab.(!k+1) <- x
-	
+		     let x = tab.(i) in
+		     while !k > 0 && tab.(!k) > x do
+		       tab.(!k+1) <- tab.(!k);
+		       k := !k - 1
+		     done; 
+		     tab.(!k+1) <- x
+		       
 let around3x3 i j src =
   let tab = Array.make 9 (0,0,0) in 
   for k = 0 to 2 do
@@ -74,8 +74,8 @@ let around3x3 i j src =
     tab.(k+3) <- Sdlvideo.get_pixel_color src i (j + k - 1);
     tab.(k+6) <- Sdlvideo.get_pixel_color src (i + 1) (j + k - 1)
   done; tab
-  
-		 
+    
+    
 let remove_noise src = 
   let (x,y) = get_dims src and tab = ref (Array.make 9 (0,0,0))
   in for i = 1 to (x-2) do
@@ -131,7 +131,7 @@ let rot_img img dst ang =
       let old_y = x2 *. sin(ang_r) +. y2 *. cos(ang_r) in
       let int_old_y = int_of_float old_y + center_y in
       if (int_old_x < 0 || int_old_x > w ||
-          int_old_y < 0 || int_old_y > h) then
+            int_old_y < 0 || int_old_y > h) then
         Sdlvideo.put_pixel_color dst x y (255, 255, 255)
       else
         let color = Sdlvideo.get_pixel_color img int_old_x int_old_y in
@@ -141,8 +141,8 @@ let rot_img img dst ang =
 
 let max_mat mat = 
   let dims mat =
-  let n = Array.length mat in
-  if n = 0 then (0, 0) else (n, Array.length mat.(0)) in
+    let n = Array.length mat in
+    if n = 0 then (0, 0) else (n, Array.length mat.(0)) in
   let (i, j) = dims mat in
   let p_max = ref 0 in
   let theta = ref 0 in
@@ -155,7 +155,7 @@ let max_mat mat =
 	end
     done;
   done;
-!theta;;
+  !theta;;
 
 let detect_rot img =
   let (w, h) = get_dims img in
@@ -269,34 +269,36 @@ let main () =
     (* On crée la surface d'affichage en doublebuffering *)
     let display = Sdlvideo.set_video_mode w h [`DOUBLEBUF] in
       (* on affiche l'image *)
-      show img display;
+    show img display;
       (* on attend une touche *)
-      wait_key ();
+    wait_key ();
     let dst = Sdlvideo.create_RGB_surface_format img [] w h in
-    	image2grey img dst;
-	show dst display;
-	wait_key ();
-	grey2black_white dst 0.75;
-    	show dst display;
-    	wait_key ();
-	Sdlvideo.save_BMP dst "inProgress";
+    let reseau = new Neuron.network 1 in
+    reseau#initialize;
+    image2grey img dst;
+    show dst display;
+    wait_key ();
+    grey2black_white dst 0.75;
+    show dst display;
+    wait_key ();
+    Sdlvideo.save_BMP dst "inProgress";
     let dst2 = Sdlvideo.load_BMP "inProgress" in
     let ang = detect_rot dst2 - 90 in
-	rot_img dst dst2 (float ang);
-	show dst2 display;
-	wait_key ();
-	remove_noise dst2;
-	show dst2 display;
-    	wait_key ();
-	let dst3 = Sdlvideo.create_RGB_surface_format dst2 [] w h in
-	let matW = lissage_w dst2 60 in
-	let matH = lissage_h dst2 60 in
-	print_matrix_img dst2 dst3 (fun_and dst2 matW matH);
-	show dst3 display;
-	wait_key ();
-	Sdlvideo.save_BMP dst3 "inProgress";
-      (* on quitte *)
-      exit 0
+    rot_img dst dst2 (float ang);
+    show dst2 display;
+    wait_key ();
+    remove_noise dst2;
+    show dst2 display;
+    wait_key ();
+    let dst3 = Sdlvideo.create_RGB_surface_format dst2 [] w h in
+    let matW = lissage_w dst2 60 in
+    let matH = lissage_h dst2 60 in
+    print_matrix_img dst2 dst3 (fun_and dst2 matW matH);
+    show dst3 display;
+    wait_key ();
+    Sdlvideo.save_BMP dst3 "inProgress";
+    (* on quitte *)
+    exit 0
   end
- 
+    
 let _ = main ()
