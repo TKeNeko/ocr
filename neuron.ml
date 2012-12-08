@@ -197,7 +197,7 @@ object (self)
 
   method get_letter = letter
 
-  method learning tab_mat character = 
+  method learning tab_mat character =
     let number = Array.length tab_mat
     and mat_temp = ref (Array.make_matrix size_x size_y 0) in
     for i = 0 to (number - 1) do
@@ -278,7 +278,7 @@ let mmat =
 
 let neur_test = 
   let matr = Array.make_matrix 8 8 0 in
-  let neurone = new neuron matr 'l' 8 8 in
+  let neurone = new neuron 'l' in
   let tab = Array.make 1 matr in
   let matrix = Array.make_matrix 8 8 0 in
   let test_mat = Array.make_matrix 4 4 0 in
@@ -305,4 +305,4 @@ let neur_test =
     test_mat.(i).(1) <- 1;
   done;
   test_mat.(3).(2) <- 1;
-  neurone#matching (resize (truncate test_mat))
+  neurone#matching (resize (truncate test_mat));
