@@ -9,6 +9,6 @@ ocr: ${ML}
 	${OCAML} ${OCAMLFLAGS} ${OCAMLLD} -o ocr ${ML}
  
 clean::
-	rm -f *~ *.o *.cm? ocr
+	rm -f *~ *.o *.cm? ocr inProgress
  
 # FIN
