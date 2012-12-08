@@ -293,7 +293,7 @@ let main () =
 	contraste dst;
 	show dst display;
 	wait_key ();
-	grey2black_white dst 0.75;
+	grey2black_white dst 0.5;
     	show dst display;
     	wait_key ();
 	Sdlvideo.save_BMP dst "inProgress";
