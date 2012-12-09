@@ -197,6 +197,8 @@ object (self)
 
   method get_letter = letter
 
+  method set_weight i j x = matrix_weight.(i).(j) <- x
+
   method learning tab_mat character =
     let number = Array.length tab_mat
     and mat_temp = ref (Array.make_matrix size_x size_y 0) in
@@ -280,4 +282,28 @@ object (self)
 	|_ -> ""
       in
       char_to_string (self#recongnize mat)
+
+  method restaure = 
+    let file = open_in "save_neuron.txt" in
+    let i = ref 0
+    and lenght = ref 0
+    and num = ref (String.create 1)
+    and line = ref (String.create 1) in
+    for l = 0 to nbr do
+      line := input_line file;
+      lenght := String.length !line;
+      i := 0;
+      for x = 0 to size_mat_x - 1 do 
+	for y = 0 to size_mat_y -1 do
+	  num := "";
+	  while !i < !lenght && !line.[!i] <> ' ' do
+	    num := !num ^ (String.make 1 !line.[!i]);
+	    i:= !i+1
+	  done;
+	  tab.(l)#set_weight x y (float_of_string !num)
+	done
+      done
+    done
+
 end
+
