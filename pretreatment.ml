@@ -187,6 +187,12 @@ let detect_rot img =
   done;
   max_mat mat;;
 
+let foun =
+  let ligne = ref "" in
+  for i = 0 to 5 do
+    ligne := !ligne ^ "a"
+  done
+
 let pretreatment img dst =
   sdl_init ();
   image2grey img dst;
@@ -196,6 +202,6 @@ let pretreatment img dst =
   Sdlvideo.save_BMP dst "inProgress";
   let dst2 = Sdlvideo.load_BMP "inProgress" in
   let ang = detect_rot dst2 - 90 in
-  rot_img dst dst2 (float ang);
+  (*rot_img dst dst2 (float ang); *)
   remove_noise dst2;
   dst2

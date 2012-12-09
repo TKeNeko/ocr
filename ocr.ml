@@ -45,6 +45,7 @@ let rec nb_white2blackX i j src =
 
 let rec nb_white2blackY i j src =
   let (x,y) = get_dims src in
+
   let (r,g,b) = Sdlvideo.get_pixel_color src i j in
   if j < y-1 then
     if (r,g,b) > (200,200,200) then
@@ -101,7 +102,19 @@ let fun_and src m1 m2=
 	mat.(i).(j) <- (0,0,0)
     done
   done; mat
-
+    
+let img_to_mat img =
+  let (x,y) = get_dims img in
+  let mat = Array.make_matrix x y 0 in
+  for j = 0 to y -1 do
+    for i = 0 to x - 1 do
+      let (r,g,b) = Sdlvideo.get_pixel_color img i j in
+      if r = 0 then
+	mat.(j).(i) <- 1
+    done
+  done;
+  mat
+    
 (* main *)
 let main () =
   begin
@@ -112,29 +125,44 @@ let main () =
     sdl_init ();
     let reseau = new Neuron.network 1 in
     reseau#initialize;
+    let test = Sdlloader.load_image Sys.argv.(2) in
+    let (u,v) = get_dims test in
+    let dste = Sdlvideo.create_RGB_surface_format test [] u v in
+    let haha = Pretreatment.pretreatment test dste in
+    let tab_mat = Array.make 1 (Array.make_matrix 2 3 0) in
+    tab_mat.(0) <- reseau#make_clean (img_to_mat haha);
+    let tab_char = Array.make 1 'a' in
+    tab_char.(0) <- 'a';
+    let tabtab_mat = Array.make 1 (tab_mat) in
+    tabtab_mat.(0) <- tab_mat;
+    reseau#learning_net tabtab_mat tab_char;
+    reseau#save;
   (* Chargement d'une image *)
-  let img = Sdlloader.load_image Sys.argv.(1) in
+    let img = Sdlloader.load_image Sys.argv.(1) in
   (* On récupère les dimensions *)
-  let (w,h) = get_dims img in
+    let (w,h) = get_dims img in
   (* On crée la surface d'affichage en doublebuffering *)
-  let display = Sdlvideo.set_video_mode w h [`DOUBLEBUF] in
+    let display = Sdlvideo.set_video_mode w h [`DOUBLEBUF] in
   (* on affiche l'image *)
-  show img display;
+    show img display;
   (* on attend une touche *)
-  wait_key ();
-  let dst = Sdlvideo.create_RGB_surface_format img [] w h in
-  let dst2 = Pretreatment.pretreatment img dst in
-  show dst2 display;
-  wait_key ();
-  let dst3 = Sdlvideo.create_RGB_surface_format dst2 [] w h in
-  let matW = lissage_w dst2 60 in
-  let matH = lissage_h dst2 60 in
-  print_matrix_img dst2 dst3 (fun_and dst2 matW matH);
-  show dst3 display;
-  wait_key ();
-  Sdlvideo.save_BMP dst3 "inProgress";
+    wait_key ();
+    let dst = Sdlvideo.create_RGB_surface_format img [] w h in
+    let dst2 = Pretreatment.pretreatment img dst in
+    show dst2 display;
+    wait_key ();
+    let mat = img_to_mat dst2 in
+    print_string (reseau#mat_to_string (mat));
+(*
+    let dst3 = Sdlvideo.create_RGB_surface_format dst2 [] w h in
+    let matW = lissage_w dst2 60 in
+    let matH = lissage_h dst2 60 in
+    print_matrix_img dst2 dst3 (fun_and dst2 matW matH);
+    show dst3 display;
+    wait_key ();
+    Sdlvideo.save_BMP dst3 "inProgress"; *)
   (* on quitte *)
-  exit 0
+    exit 0
   end
     
 let _ = main ()

@@ -3,6 +3,15 @@ let size_mat_y = 8
 	
 let get_dims matrix = (Array.length matrix, Array.length matrix.(0))
 
+let print_mat matrix =
+  let (x,y) = get_dims matrix in
+  for i = 0 to x - 1 do
+    for j = 0 to y - 1 do
+      print_string (string_of_int(matrix.(i).(j)))
+    done;
+    print_string "\r\n"
+  done
+
 let detect_top matrix = 
   let (x,y) = get_dims matrix
   and stop = ref false
@@ -119,7 +128,7 @@ let reduce_mat_w matrix dest_y =
 	  sum := !sum + matrix.(i).(!col);
 	  col:= !col + 1
 	done;
-	if (float !sum) >= ((float mult_y) /. 2.) then
+	if (float !sum) > ((float mult_y) /. 1.8) then
 	  dest_mat.(i).(j) <- 1
       end
     done
@@ -144,7 +153,7 @@ let reduce_mat_h matrix dest_x =
 	    sum := !sum + matrix.(!line).(j);
 	    line := !line + 1
 	done;
-	if (float !sum) >= ((float mult_x) /. 2.) then
+	if (float !sum) > ((float mult_x) /. 1.8) then
 	    dest_mat.(i).(j) <- 1
       end
     done
@@ -196,6 +205,7 @@ object (self)
   val mutable matrix_weight : float array array = Array.make_matrix size_mat_x size_mat_y 0.
 
   method get_letter = letter
+  method get_matrix_weight = matrix_weight
 
   method learning tab_mat character =
     let number = Array.length tab_mat
@@ -227,20 +237,24 @@ object (self)
       done;
       !sum
 
+    method get_weight i j =
+      string_of_float(matrix_weight.(i).(j))
 end
 
 let is_empty mat = 
   let (x,y) = get_dims mat 
-  and empty = ref true 
+  and sum = ref 0
   and i = ref 0
   and j = ref 0 in
-  while !i < (x-1) && !empty do
-    while !j < (y-1) && !empty do
-      if mat.(!i).(!j) = 1 then
-	empty := false
-    done
+  while !i < x do
+    j := 0;
+    while !j < y do
+      sum := !sum + mat.(!i).(!j);
+      j := !j + 1;
+    done;
+    i := !i + 1
   done;
-  !empty
+  (!sum = 0)
 
 class network nbr = 
 object (self)
@@ -250,6 +264,8 @@ object (self)
     for i = 0 to (nbr - 1) do
       tab.(i) <- new neuron (Char.chr (i + 33))
     done
+      
+  method make_clean matrix = resize (truncate matrix)
 
   method learning_net tab_mat tab_char= 
     for i = 0 to (nbr - 1) do
@@ -280,4 +296,18 @@ object (self)
 	|_ -> ""
       in
       char_to_string (self#recongnize mat)
+
+  method save =
+    let save_neuron = open_out "save_neuron.txt" in
+    let ligne = ref "" in
+    for n = 0 to nbr - 1 do
+      let mat = tab.(n)#get_matrix_weight in
+      for i = 0 to size_mat_x - 1 do
+	for j = 0 to size_mat_y - 1 do
+	  ligne := !ligne ^ (string_of_float(mat.(i).(j))) ^ " "
+	done
+      done;
+      output_string save_neuron (Printf.sprintf "%s" (!ligne ^ "\n"))
+    done;
+    close_out save_neuron
 end
