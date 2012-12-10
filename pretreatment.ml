@@ -187,6 +187,12 @@ let detect_rot img =
   done;
   max_mat mat;;
 
+let foun =
+  let ligne = ref "" in
+  for i = 0 to 5 do
+    ligne := !ligne ^ "a"
+  done
+
 let pretreatment img dst =
   sdl_init ();
   image2grey img dst;

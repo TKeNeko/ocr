@@ -3,7 +3,7 @@
 OCAML=ocamlopt
 OCAMLFLAGS= -I +sdl
 OCAMLLD= bigarray.cmxa sdl.cmxa sdlloader.cmxa
-ML= pretreatment.ml neuron.ml ocr.ml
+ML= detection.ml pretreatment.ml neuron.ml ocr.ml
  
 ocr: ${ML}
 	${OCAML} ${OCAMLFLAGS} ${OCAMLLD} -o ocr ${ML}
