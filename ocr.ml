@@ -134,13 +134,20 @@ let init_neuron reseau img tab =
   done;
   reseau#learning_net tab_mat
 
+let set_network net img tab =
+  try
+    net#restaure
+  with _ ->
+    init_neuron net img tab;
+    net#save
+
 let init () =  
   sdl_init ();
   let reseau = new Neuron.network 93 in
   reseau#initialize;
   let img = Sdlloader.load_image "char.png" in
   let tab =  Detection.found_quatior img in
-  init_neuron reseau img tab;
+  set_network reseau img tab;
   reseau
 
 let main () = 
