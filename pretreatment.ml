@@ -202,7 +202,6 @@ let pretreatment img dst =
   Sdlvideo.save_BMP dst "inProgress";
   let dst2 = Sdlvideo.load_BMP "inProgress" in
   let ang = detect_rot dst2 - 90 in
-  (*rot_img dst dst2 (float ang); *)
-  rot_img dst dst2 10.;
- (* remove_noise dst2;*)
+  rot_img dst dst2 (float ang);
+  remove_noise dst2;
   dst2

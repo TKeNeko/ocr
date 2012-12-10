@@ -7,7 +7,7 @@ let print_mat matrix =
   let (x,y) = get_dims matrix in
   for i = 0 to x - 1 do
     for j = 0 to y - 1 do
-      print_string (string_of_int(matrix.(i).(j)))
+      print_string (string_of_float(matrix.(i).(j)))
     done;
     print_string "\r\n"
   done
@@ -205,23 +205,16 @@ object (self)
   val mutable matrix_weight : float array array = Array.make_matrix size_mat_x size_mat_y 0.
 
   method get_letter = letter
+  method set_letter lett = letter <- lett
   method get_matrix_weight = matrix_weight
 
-  method learning tab_mat character =
-    let number = Array.length tab_mat
-    and mat_temp = ref (Array.make_matrix size_x size_y 0) in
-    for i = 0 to (number - 1) do
-      mat_temp := tab_mat.(i);
-      for x = 0 to (size_x - 1) do
-	for y = 0 to (size_y - 1) do
-	    matrix_weight.(x).(y) <- matrix_weight.(x).(y) +. (float !mat_temp.(x).(y))
-	done;
-      done;
-    done;
+  method set_weight i j x = matrix_weight.(i).(j) <- x
+
+  method learning mat character =
     for x = 0 to (size_x - 1) do
       for y = 0 to (size_y - 1) do
-	matrix_weight.(x).(y) <- matrix_weight.(x).(y) /. (float number)
-      done;
+	matrix_weight.(x).(y) <- matrix_weight.(x).(y) +. (float mat.(x).(y))
+      done
     done;
     letter <- character;
 
@@ -267,9 +260,9 @@ object (self)
       
   method make_clean matrix = resize (truncate matrix)
 
-  method learning_net tab_mat tab_char= 
+  method learning_net tab_mat = 
     for i = 0 to (nbr - 1) do
-      tab.(i)#learning tab_mat.(i) tab_char.(i)
+      tab.(i)#learning tab_mat.(i) (Char.chr (i+33))
     done
       
   method recongnize matrix =
@@ -297,6 +290,30 @@ object (self)
       in
       char_to_string (self#recongnize mat)
 
+  method restaure = 
+    let file = open_in "save_neuron.txt" in
+    let i = ref 0
+    and lenght = ref 0
+    and num = ref (String.create 1)
+    and line = ref (String.create 1) in
+    for l = 0 to nbr -1 do
+      line := input_line file;
+      lenght := String.length !line;
+      i := 0;
+      for x = 0 to size_mat_x - 1 do 
+	for y = 0 to size_mat_y -1 do
+	  num := "";
+	  while !i < !lenght && !line.[!i] <> ' ' do
+	    num := !num ^ (String.make 1 !line.[!i]);
+	    i:= !i+1
+	  done;
+	  i := !i+1;
+	  tab.(l)#set_weight x y (float_of_string !num);
+	  tab.(l)#set_letter (Char.chr (l + 97))
+	done
+      done
+    done;
+
   method save =
     let save_neuron = open_out "save_neuron.txt" in
     let ligne = ref "" in
@@ -310,4 +327,6 @@ object (self)
       output_string save_neuron (Printf.sprintf "%s" (!ligne ^ "\n"))
     done;
     close_out save_neuron
+
 end
+

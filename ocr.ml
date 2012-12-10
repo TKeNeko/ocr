@@ -103,19 +103,57 @@ let fun_and src m1 m2=
     done
   done; mat
     
-let img_to_mat img =
-  let (x,y) = get_dims img in
+let img_to_mat img i_inf j_inf x y =
   let mat = Array.make_matrix x y 0 in
-  for j = 0 to y -1 do
-    for i = 0 to x - 1 do
+  for j = j_inf to j_inf + y  do
+    for i = i_inf to i_inf + x do
       let (r,g,b) = Sdlvideo.get_pixel_color img i j in
       if r = 0 then
 	mat.(j).(i) <- 1
     done
   done;
   mat
-    
-(* main *)
+
+let img_to_string reseau img tab =
+  let length = Array.length tab
+  and mat = ref (Array.make_matrix 1 1 0)
+  and stri = ref "" in
+  for l = 0 to length do
+    let (i_inf,j_inf,x,y) = tab.(l) in
+    mat := img_to_mat img i_inf j_inf (x-i_inf) (y-j_inf);
+    stri := !stri ^ (reseau#mat_to_string !mat);
+  done;
+  !stri
+
+let init_neuron reseau img tab =
+  let length = Array.length tab in
+  let tab_mat = Array.make length (Array.make_matrix 1 1 0) in
+  for l = 0 to length - 1  do
+    let (i_inf,j_inf,x,y) = tab.(l) in
+    tab_mat.(l) <- img_to_mat img i_inf j_inf (x-i_inf) (y-j_inf)
+  done;
+  reseau#learning_net tab_mat
+
+let init () =  
+  sdl_init ();
+  let reseau = new Neuron.network 93 in
+  reseau#initialize;
+  let img = Sdlloader.load_image "char.png" in
+  let tab =  Detection.found_quatior img in
+  init_neuron reseau img tab;
+  reseau
+
+let main () = 
+  begin
+    let reseau = init () in
+    let img = Sdlloader.load_image "char.png" in
+    let tab = Detection.found_quatior img in
+    print_string (img_to_string reseau img tab);
+    exit 0
+  end
+
+
+(* main 
 let main () =
   begin
     (* Nous voulons 1 argument *)
@@ -135,8 +173,9 @@ let main () =
     tab_char.(0) <- 'a';
     let tabtab_mat = Array.make 1 (tab_mat) in
     tabtab_mat.(0) <- tab_mat;
-    reseau#learning_net tabtab_mat tab_char;
-    reseau#save;
+    reseau#restaure;
+    (*reseau#learning_net tabtab_mat tab_char;
+    reseau#save;*)
   (* Chargement d'une image *)
     let img = Sdlloader.load_image Sys.argv.(1) in
   (* On récupère les dimensions *)
@@ -164,5 +203,5 @@ let main () =
   (* on quitte *)
     exit 0
   end
-    
+*)
 let _ = main ()
