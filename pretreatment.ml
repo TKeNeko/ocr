@@ -195,13 +195,14 @@ let foun =
 
 let pretreatment img dst =
   sdl_init ();
-  image2grey img dst;
+  (*image2grey img dst;
   convolution dst;
   contrast dst;
-  grey2black_white dst 0.5;
+  grey2black_white dst 0.5;*)
   Sdlvideo.save_BMP dst "inProgress";
   let dst2 = Sdlvideo.load_BMP "inProgress" in
   let ang = detect_rot dst2 - 90 in
   (*rot_img dst dst2 (float ang); *)
-  remove_noise dst2;
+  rot_img dst dst2 10.;
+ (* remove_noise dst2;*)
   dst2

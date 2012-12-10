@@ -286,7 +286,7 @@ object (self)
 	end
     done;
     tab.(!num)#get_letter
-
+      
   method mat_to_string mat =
     if is_empty mat then
       " "
